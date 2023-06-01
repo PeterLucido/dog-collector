@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+<link 
+  href="https://cdn.jsdelivr.net/npm/mc-datepicker/dist/mc-calendar.min.css" 
+  rel="stylesheet" 
+/>
+<link rel="stylesheet" href="{% static 'css/mcdp.css' %}">
+<script 
+  src="https://cdn.jsdelivr.net/npm/mc-datepicker/dist/mc-calendar.min.js"
+>
+</script>
+<link 
+  rel="stylesheet" 
+  type="text/css" 
+  href="{% static 'css/dogs/dog-detail.css' %}"
+/>
+<script defer src="{% static 'js/dog-detail.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<section class="dog-container">
+  <div class="dog-details">
+    <h1>{{ dog.name }}</h1>
+    {% if dog.age > 0 %}
+      <h2>A {{ dog.age }} year old {{ dog.breed }}</h2>
+    {% else %}
+      <h2>A {{ dog.breed }} kitten.</h2>
+    {% endif %}
+    <p>{{ dog.description }}</p>
+    {% comment %} New markup {% endcomment %}
+    <div class="dog-actions">
+      <a href="{% url 'dog-update' dog.id %}" class="btn warn">Edit</a>
+      <a href="{% url 'dog-delete' dog.id %}" class="btn danger">Delete</a>
+    </div>
+    {% comment %} New markup above {% endcomment %}
+  </div>
+</section>
+<div class="feedings-toy-container">
+  <section class="feedings">
+    <div class="subsection-title">
+      <h2>Feedings</h2>
+    </div>
+    <h3>Add a Feeding</h3>
+    <form
+      action="{% url 'add-feeding' dog.id %}"
+      method="post" 
+      class="subsection-content"
+    >
+      {% comment %} New markup below {% endcomment %}
+      {% if dog.fed_for_today %}
+        <p class="fed">{{dog.name}} has been fed all their meals for today!</p>
+      {% else %}
+        <p class="unfed">{{dog.name}} might be hungry!</p>
+      {% endif %}
+      {% comment %} New markup above {% endcomment %}
+      {% csrf_token %}
+      {{ feeding_form.as_p }}
+      <button type="submit" class="btn submit">Add Feeding</button>
+    </form>
+    <h3>Past Feedings</h3>
+    {% if dog.feeding_set.all.count %}
+    <table>
+      <thead>
+        <tr><th>Date</th><th>Meal</th></tr>
+      </thead>
+      <tbody>
+        {% for feeding in dog.feeding_set.all %}
+          <tr>
+            <td>{{feeding.date}}</td>
+            <td>{{feeding.get_meal_display}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+			<div class="subsection-content">
+        <p>{{dog.name}} has never been fed 😔</p>
+      </div>
+      {% endif %}
+    </section> 
+    {% comment %} Add this section below the CLOSING tag (</section>) for <section class="feedings"> {% endcomment %}
+    <section class="toys">
+      <div class="subsection-title">
+        <h2>Toys</h2>
+        <img src="{% static 'images/string.svg' %}" alt="A ball of string" />
+        <img src="{% static 'images/mouse.svg' %}" alt="A mouse" />
+        <img src="{% static 'images/fish.svg' %}" alt="A fishy toy" />
+      </div>
+      <h3>{{ dog.name }}'s Toys</h3>
+      <div class="subsection-content">
+        {% if dog.toys.count %}
+          {% for toy in dog.toys.all %}
+            <div class="toy-container">
+              <div 
+                class="color-block"
+                style="background-color: {{ toy.color }}"
+              ></div>
+              <a href="{% url 'toy-detail' toy.id %}">
+                <p>A {{ toy.color }} {{ toy.name }}</p>
+              </a>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="no-toys">{{dog.name}} doesn't have any toys 😞</p>
+        {% endif %}
+      </div>
+      <h3>Available Toys</h3>
+      <div class="subsection-content">
+        {% comment %} We'll display available toys here {% endcomment %}
+        {% if toys.count %}
+          {% for toy in toys.all %}
+            <div class="toy-container">
+              <div 
+                class="color-block"
+                style="background-color: {{ toy.color }}"
+              ></div>
+              <a href="{% url 'toy-detail' toy.id %}">
+                <p>A {{ toy.color }} {{ toy.name }}</p>
+              </a>
+              <form action="{% url 'assoc-toy' dog.id toy.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn submit">Give toy</button>
+              </form>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="all-toys">
+            {{dog.name}} already has all the available toys 🥳
+          </p>
+        {% endif %}
+      </div>
+    </section>
+  </div>
+</div>
+
+{% endblock %}

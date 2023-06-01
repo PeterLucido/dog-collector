@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>Delete Dog?</h1>
+</div>
+<h2>Are you sure you want to delete {{ dog.name }}?</h2>
+
+<form action="" method="POST" class="form">
+  {% csrf_token %}
+    Cancel
+  <button type="submit" class="btn danger">Yes - Delete!</button>
+</form>
+
+{% endblock %}

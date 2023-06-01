@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+<link 
+  rel="stylesheet"
+  type="text/css"
+  href="{% static 'css/dogs/dog-index.css' %}"
+/>
+{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+  <h1>Dog List</h1>
+</section>
+
+<section class="card-container">
+  {% for dog in dogs %}
+    <div class="card">
+      {% comment %} Add this line {% endcomment %}
+      <a href="{% url 'dog-detail' dog.id %}">
+        <div class="card-content">
+          <div class="card-img-container">
+            <img 
+              src="{% static 'images/sk8r-boi-dog.svg' %}" 
+              alt="A skater boy dog"
+            >
+          </div>
+          <h2 class="card-title">{{ dog.name }}</h2>
+          {% if dog.age > 0 %}
+            <p>A {{ dog.age }} year old {{ dog.breed }}</p>
+          {% else %}
+            <p>A {{ dog.breed }} puppy.</p>
+          {% endif %}
+          <p><small>{{ dog.description }}</small></p>
+        </div>
+      {% comment %} And this line {% endcomment %}
+      </a>
+    </div>
+  {% endfor %}
+</section>
+
+{% endblock %}
