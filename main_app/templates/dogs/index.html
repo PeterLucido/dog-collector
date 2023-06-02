@@ -22,10 +22,15 @@
       <a href="{% url 'dog-detail' dog.id %}">
         <div class="card-content">
           <div class="card-img-container">
-            <img 
-              src="{% static 'images/sk8r-boi-dog.svg' %}" 
-              alt="A skater boy dog"
-            >
+            {% if dog.photo.url %}
+        <img 
+          src="{{dog.photo.url}}" 
+          alt="A photo of {{dog.name}}"
+          class="usr-img"
+        >
+      {% else %}
+        <h2>good boy photo</h2>
+      {% endif %}
           </div>
           <h2 class="card-title">{{ dog.name }}</h2>
           {% if dog.age > 0 %}

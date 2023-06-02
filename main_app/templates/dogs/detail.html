@@ -31,6 +31,35 @@
     {% endif %}
     <p>{{ dog.description }}</p>
     {% comment %} New markup {% endcomment %}
+    <div class="dog-img">
+      {% if dog.photo.url %}
+        <img 
+          src="{{dog.photo.url}}" 
+          alt="A photo of {{dog.name}}"
+          class="usr-img"
+        >
+      {% else %}
+        <h2>good boy photo</h2>
+      {% endif %}
+    </div>
+    <div class="dog-actions">
+      <a href="{% url 'dog-update' dog.id %}" class="btn warn">Edit</a>
+      <a href="{% url 'dog-delete' dog.id %}" class="btn danger">Delete</a>
+    </div>
+    <h3>Change {{ dog.name }}'s photo</h3>
+    <p id="file-name"></p>
+    <form 
+      action="{% url 'add-photo' dog.id %}"
+      enctype="multipart/form-data"
+      method="POST"
+    >
+      {% csrf_token %}
+      <label class="btn secondary">
+        Choose photo
+        <input type="file" name="photo-file" id="file-input">
+      </label>
+      <button type="submit" class="btn submit">Upload Photo</button>
+    </form>
     <div class="dog-actions">
       <a href="{% url 'dog-update' dog.id %}" class="btn warn">Edit</a>
       <a href="{% url 'dog-delete' dog.id %}" class="btn danger">Delete</a>

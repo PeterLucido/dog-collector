@@ -53,3 +53,9 @@ class Feeding(models.Model):
   class Meta:
     ordering = ['-date']
 
+class Photo(models.Model):
+  url = models.CharField(max_length=250)
+  dog = models.OneToOneField(Dog, on_delete=models.CASCADE)
+
+  def __str__(self):
+    return f"Photo for dog_id: {self.dog_id} @{self.url}"

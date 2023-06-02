@@ -6,8 +6,13 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Dog, Toy
+from .models import Dog, Toy, Photo
 from .forms import FeedingForm
+import uuid
+import boto3
+
+S3_BASE_URL = 'https://s3.us-east-2.amazonaws.com/'
+BUCKET = 'peter-dog-collector'
 # Create your views here.
 
 def signup(request):
@@ -94,3 +99,28 @@ class ToyUpdate(LoginRequiredMixin, UpdateView):
 class ToyDelete(LoginRequiredMixin, DeleteView):
   model = Toy
   success_url = '/toys/'
+
+def add_photo(request, dog_id):
+  # photo-file will be the "name" attribute on the <input type="file">
+  photo_file = request.FILES.get('photo-file', None)
+  if photo_file:
+    s3 = boto3.client('s3')
+    # need a unique "key" for S3 / needs image file extension too
+		# uuid.uuid4().hex generates a random hexadecimal Universally Unique Identifier
+    # Add on the file extension using photo_file.name[photo_file.name.rfind('.'):]
+    key = uuid.uuid4().hex + photo_file.name[photo_file.name.rfind('.'):]
+    # just in case something goes wrong
+    try:
+      s3.upload_fileobj(photo_file, BUCKET, key)
+      # build the full url string
+      url = f"{S3_BASE_URL}{BUCKET}/{key}"
+      # we can assign to dog_id or dog (if you have a dog object)
+      photo = Photo(url=url, dog_id=dog_id)
+      # Remove old photo if it exists
+      dog_photo = Photo.objects.filter(dog_id=dog_id)
+      if dog_photo.first():
+        dog_photo.first().delete()
+      photo.save()
+    except Exception as err:
+      print('An error occurred uploading file to S3: %s' % err)
+  return redirect('dog-detail', dog_id=dog_id)
